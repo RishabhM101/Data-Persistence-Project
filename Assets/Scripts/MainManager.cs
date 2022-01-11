@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System.IO;
 
 public class MainManager : MonoBehaviour
 {
@@ -18,8 +19,15 @@ public class MainManager : MonoBehaviour
     
     private bool m_GameOver = false;
 
-    
-    // Start is called before the first frame update
+    public Text pName, hScore;
+
+
+
+    private int highScore; 
+
+
+
+
     void Start()
     {
         const float step = 0.6f;
@@ -36,10 +44,20 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+
+        if (MenuManager.Instance != null)
+        {
+            Setname(MenuManager.Instance.playerName);
+
+        }
+
+        
     }
 
     private void Update()
     {
+        SetHighScore();
+
         if (!m_Started)
         {
             if (Input.GetKeyDown(KeyCode.Space))
@@ -55,22 +73,69 @@ public class MainManager : MonoBehaviour
         }
         else if (m_GameOver)
         {
+            
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+
+                
             }
         }
+        
+
+        
+    }
+
+    void setOldHighScore()
+    {
+       highScore = MenuManager.Instance.HScore;
     }
 
     void AddPoint(int point)
     {
         m_Points += point;
         ScoreText.text = $"Score : {m_Points}";
+
+        if( m_Points > highScore)
+        {
+           MenuManager.Instance.HScore = m_Points;
+           MenuManager.Instance.HplayerName = MenuManager.Instance.playerName;
+        }
+
+        
     }
+
+    public void Setname(string name)
+    {
+        pName.text = "Hello: " + name;
+       
+
+    }
+
+    public void SetHighScore()
+    {
+        if (m_Points > MenuManager.Instance.HScore)
+        {
+            MenuManager.Instance.HScore = m_Points;
+            MenuManager.Instance.HplayerName = MenuManager.Instance.playerName;
+        }
+        highScore = MenuManager.Instance.HScore;
+        hScore.text = $"HighScore :{MenuManager.Instance.HplayerName} : {MenuManager.Instance.HScore}";
+    }
+
 
     public void GameOver()
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
     }
+
+    public void StartNew()
+    {
+        SceneManager.LoadScene(0);
+    }
+
+    
 }
+
+   
